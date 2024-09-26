@@ -1,0 +1,156 @@
+{
+	"info": {
+		"_postman_id": "8306189c-5291-4376-8c80-7a45979776ac",
+		"name": "OpenSearch Geo Api implementation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24012674"
+	},
+	"item": [
+		{
+			"name": "Check indices",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9200/_cat/indices",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"_cat",
+						"indices"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Index",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9200/logstash-index-geo",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"logstash-index-geo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Index",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"mappings\": {\r\n    \"properties\": {\r\n      \"@timestamp\": { \"type\": \"date\" },\r\n      \"@version\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\", \"ignore_above\": 256 } } },\r\n      \"dob\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\", \"ignore_above\": 256 } } },\r\n      \"email\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\", \"ignore_above\": 256 } } },\r\n      \"first_name\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\", \"ignore_above\": 256 } } },\r\n      \"host\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\", \"ignore_above\": 256 } } },\r\n      \"last_name\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\", \"ignore_above\": 256 } } },\r\n      \"message\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\", \"ignore_above\": 256 } } },\r\n      \"path\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\", \"ignore_above\": 256 } } },\r\n      \"phone\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\", \"ignore_above\": 256 } } },\r\n      \"point\": {\r\n        \"type\": \"geo_point\"\r\n      },\r\n      \"tags\": { \"type\": \"text\", \"fields\": { \"keyword\": { \"type\": \"keyword\", \"ignore_above\": 256 } } }\r\n    }\r\n  }\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9200/logstash-index-geo",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"logstash-index-geo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Index Info",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9200/logstash-index-geo",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"logstash-index-geo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search with Location",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"query\": {\r\n    \"bool\": {\r\n      \"filter\": {\r\n        \"geo_distance\": {\r\n          \"distance\": \"2mi\",\r\n          \"point\": {\r\n            \"lat\": \"40.72\",\r\n            \"lon\": \"-73.94\"\r\n          }\r\n        }\r\n      }\r\n    }\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9200/logstash-index-geo/_search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"logstash-index-geo",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "RE index",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"source\": {\r\n    \"index\": \"logstash-index-2024.09.26\"\r\n  },\r\n  \"dest\": {\r\n    \"index\": \"logstash-index-geo\"\r\n  },\r\n  \"script\": {\r\n    \"source\": \"ctx._source.point = ['lat': ctx._source.point.latitude, 'lon': ctx._source.point.longitude];\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9200/_reindex",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"_reindex"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
